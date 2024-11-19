@@ -1,0 +1,1 @@
+/home/auronen/my_msvc/opt/msvc/bin/x86/lib /nologo /machine:X86 /out:vorbis.lib @CMakeFiles/vorbis.dir/objects1.rsp 

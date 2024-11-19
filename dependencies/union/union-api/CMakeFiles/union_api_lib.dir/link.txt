@@ -1,0 +1,1 @@
+/home/auronen/my_msvc/opt/msvc/bin/x86/lib /nologo /machine:X86 /out:union_api_lib.lib @CMakeFiles/union_api_lib.dir/objects1.rsp 
