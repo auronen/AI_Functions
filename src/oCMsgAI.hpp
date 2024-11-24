@@ -89,7 +89,7 @@ namespace GOTHIC_NAMESPACE {
         return true;
     }
 
-    auto Hook_OnMessage = Union::CreateHook((void*)0x006D95F0,
+    auto Hook_OnMessage = Union::CreateHook((void*)0x006A69E0,
                                           &oCNpc::OnMessage_U,
                                           Union::HookType::Hook_Detours);
 
