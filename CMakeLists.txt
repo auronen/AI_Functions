@@ -13,8 +13,6 @@ include(target_add_versioninfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-D__G1)
-
 file(GLOB_RECURSE SRC 
     "src/*.cpp"
 )

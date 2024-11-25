@@ -1,6 +1,3 @@
-#ifndef OCMSGAI_H_
-#define OCMSGAI_H_
-
 #include <cassert>
 
 namespace GOTHIC_NAMESPACE {
@@ -89,7 +86,7 @@ namespace GOTHIC_NAMESPACE {
         return true;
     }
 
-    auto Hook_OnMessage = Union::CreateHook((void*)0x006A69E0,
+    auto Hook_OnMessage = Union::CreateHook(reinterpret_cast<void*>(zSwitch(0x006A69E0, 0x006D95F0, 0x006EC360, 0x0074B020)),
                                           &oCNpc::OnMessage_U,
                                           Union::HookType::Hook_Detours);
 
@@ -123,5 +120,3 @@ namespace GOTHIC_NAMESPACE {
     }
 
 }
-
-#endif // OCMSGAI_H_

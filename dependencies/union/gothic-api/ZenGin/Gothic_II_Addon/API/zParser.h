@@ -7,8 +7,6 @@
 #include "zParser_Symbol.h"
 #include "zDisk.h"
 
-#include <vector>
-
 namespace Gothic_II_Addon {
   const int zPAR_INDEX_UNDEF = -1;
 

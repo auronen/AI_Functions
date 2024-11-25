@@ -132,25 +132,25 @@ namespace Gothic_I_Addon {
     }
 
     virtual unsigned long SizeIndex() const { 
-      return sizeof( T ); 
+      return sizeof(T); 
     }
 
     virtual unsigned long SizeData() const { 
-      return sizeof( Data ); 
+      return sizeof(Data); 
     }
 
     virtual unsigned long SizeAll() const { 
-      return sizeof( T ) + sizeof( Data ) + sizeof( zCSparseArrayManDat ); 
+      return sizeof(T) + sizeof(Data) + sizeof(zCSparseArrayManDat); 
     }
 
     virtual void *IndexPtr( unsigned long i ) const { 
-      return ((char *)table) + (sizeof( T ) + sizeof( Data ) + sizeof( zCSparseArrayManDat )) * i;
+      return ((char *)table) + (sizeof(T) + sizeof(Data) + sizeof(zCSparseArrayManDat)) * i;
     }
     virtual void *DataPtr( unsigned long i ) const { 
-      return (char *)IndexPtr( i ) + sizeof( T ); 
+      return (char *)IndexPtr( i ) + sizeof(T); 
     }
     virtual zCSparseArrayManDat *ManDatPtr( unsigned long i )  const {
-      return (zCSparseArrayManDat *)((char *)DataPtr( i ) + sizeof( Data )); 
+      return (zCSparseArrayManDat *)((char *)DataPtr( i ) + sizeof(Data)); 
     }
 
     virtual int IndexIsEqual( const void *i1, const void *i2 ) const { 

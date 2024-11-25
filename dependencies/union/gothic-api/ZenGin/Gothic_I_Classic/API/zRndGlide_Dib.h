@@ -10,21 +10,17 @@ namespace Gothic_I_Classic {
   public:
     zOPERATORS_DECLARATION()
 
-    struct CDIBSection16Dummy0 {
-      zOPERATORS_DECLARATION()
-
-      BITMAPINFO bmi;
-      RGBQUAD more_bmiColors[256];
-      LPVOID data;
-    };
-
     RECT m_rect;
     HWND m_hwndParent;
     HPALETTE m_hpal;
     HDC m_hdc;
     HBITMAP m_hbm;
     HBITMAP m_oldhbm;
-    CDIBSection16Dummy0 m_bitmap;
+    struct {
+      BITMAPINFO bmi;
+      RGBQUAD more_bmiColors[256];
+      LPVOID data;
+    } m_bitmap;
 
     CDIBSection16() {}
   };

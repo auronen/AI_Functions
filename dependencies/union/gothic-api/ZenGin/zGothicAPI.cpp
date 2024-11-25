@@ -46,9 +46,9 @@ int GetGameVersion() {
     const byte bytecodeForG2A[] = { 0xC7, 0x05, 0x14, 0x1E, 0x8C, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xC3 };
           
     if ( memcmp( bytecode, bytecodeForG1,  sizeof( bytecodeForG1  ) ) == 0) return Engine_G1;
-    if ( memcmp( bytecode, bytecodeForG1A, sizeof( bytecodeForG1A ) ) == 0) return Engine_G1A;
+    if ( memcmp( bytecode, bytecodeForG1A, sizeof(bytecodeForG1A) ) == 0) return Engine_G1A;
     if ( memcmp( bytecode, bytecodeForG2,  sizeof( bytecodeForG2  ) ) == 0) return Engine_G2;
-    if ( memcmp( bytecode, bytecodeForG2A, sizeof( bytecodeForG2A ) ) == 0) return Engine_G2A;
+    if ( memcmp( bytecode, bytecodeForG2A, sizeof(bytecodeForG2A) ) == 0) return Engine_G2A;
 
     return 0;
   }();
@@ -114,10 +114,10 @@ static void CreateJump( unsigned int where, unsigned int proc ) {
   Jump* jump = (Jump*)where;
 
   DWORD protection = PAGE_READWRITE;
-  VirtualProtect( jump, sizeof( Jump ), protection, &protection);
+  VirtualProtect( jump, sizeof(Jump), protection, &protection);
   jump->Instruction = 0xE9;
   jump->Offset = proc - where - 5;
-  VirtualProtect( jump, sizeof( Jump ), protection, &protection );
+  VirtualProtect( jump, sizeof(Jump), protection, &protection );
 }
 
 

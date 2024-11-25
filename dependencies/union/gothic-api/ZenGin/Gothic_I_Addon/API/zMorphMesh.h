@@ -11,16 +11,6 @@ namespace Gothic_I_Addon {
   public:
     zOPERATORS_DECLARATION()
 
-    // sizeof 01h
-    struct zCMorphMeshAniDummy0 {
-      zOPERATORS_DECLARATION()
-
-      unsigned char discontinuity : 1; // sizeof 01h    offset bit
-      unsigned char looping       : 1; // sizeof 01h    offset bit
-      unsigned char shape         : 1; // sizeof 01h    offset bit
-      unsigned char refShape      : 1; // sizeof 01h    offset bit
-    };
-
     zSTRING aniName;            // sizeof 14h    offset 00h
     zSTRING ascName;            // sizeof 14h    offset 14h
     float blendInSpeed;         // sizeof 04h    offset 28h
@@ -28,7 +18,12 @@ namespace Gothic_I_Addon {
     float holdTime;             // sizeof 04h    offset 30h
     int layer;                  // sizeof 04h    offset 34h
     float fpsRate;              // sizeof 04h    offset 38h
-    zCMorphMeshAniDummy0 flags; // sizeof 01h    offset 3Ch
+    struct {
+      unsigned char discontinuity : 1; // sizeof 01h    offset bit
+      unsigned char looping       : 1; // sizeof 01h    offset bit
+      unsigned char shape         : 1; // sizeof 01h    offset bit
+      unsigned char refShape      : 1; // sizeof 01h    offset bit
+    } flags; // sizeof 01h    offset 3Ch
     int numVert;                // sizeof 04h    offset 40h
     int* vertIndexList;         // sizeof 04h    offset 44h
     int numFrames;              // sizeof 04h    offset 48h

@@ -419,6 +419,10 @@ namespace Gothic_I_Addon {
   unsigned long& zCVertexBuffer::s_classCtorCtr = *(unsigned long*)0x0091D188;
 #endif // __ZVERTEX_BUFFER_H__VER1__
 
+#ifdef __ZVERTEX_BUFFER_H__VER1__
+  zCVolatileMemory<zCVertexTransform>& zCVertexTransform::s_MemMan = *(zCVolatileMemory<zCVertexTransform>*)0x008B51F0;
+#endif // __ZVERTEX_BUFFER_H__VER1__
+
 #ifdef __ZVIEW_BASE_H__VER1__
   const unsigned short& zCViewBase::ViewVirtualWidth  = *(const unsigned short*)0x0082273C;
   const unsigned short& zCViewBase::ViewVirtualHeight = *(const unsigned short*)0x0082273E;

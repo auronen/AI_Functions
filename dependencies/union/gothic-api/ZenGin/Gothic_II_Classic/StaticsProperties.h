@@ -493,6 +493,10 @@ namespace Gothic_II_Classic {
   unsigned long& zCVertexBuffer::s_classCtorCtr = *(unsigned long*)0x0097CD50;
 #endif // __ZVERTEX_BUFFER_H__VER2__
 
+#ifdef __ZVERTEX_BUFFER_H__VER2__
+  zCVolatileMemory<zCVertexTransform>& zCVertexTransform::s_MemMan = *(zCVolatileMemory<zCVertexTransform>*)0x008C5CE8;
+#endif // __ZVERTEX_BUFFER_H__VER2__
+
 #ifdef __ZVIEW_H__VER2__
   zCList<zCInputCallback>& zCInputCallback::inputList = *(zCList<zCInputCallback>*)0x00985FA8;
   zCView*& zCView::stdoutput                          = *(zCView**)0x00985FB4;

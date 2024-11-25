@@ -2,9 +2,9 @@ add_subdirectory(union-api)
 
 
 set(GOTHIC_API_G1 ON)
-set(GOTHIC_API_G1A OFF)
-set(GOTHIC_API_G2 OFF)
-set(GOTHIC_API_G2A OFF)
+set(GOTHIC_API_G1A ON)
+set(GOTHIC_API_G2 ON)
+set(GOTHIC_API_G2A ON)
 
 add_subdirectory(gothic-api)
 

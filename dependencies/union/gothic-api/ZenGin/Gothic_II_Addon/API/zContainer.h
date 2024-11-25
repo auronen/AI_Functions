@@ -5,13 +5,52 @@
 #define __ZCONTAINER_H__VER3__
 
 #include "zMemory_Generic.h"
+#include <type_traits>
 
 namespace Gothic_II_Addon {
   extern zCMallocGeneric* zmalloc;
 
-  inline int zArraySortDefaultCompare( const void* ele1, const void* ele2 ) zCall( 0x00553CA0 );
+  inline int zArraySortDefaultCompare( [[maybe_unused]] const void* ele1, [[maybe_unused]] const void* ele2 ) zCall( 0x00553CA0 );
 
   const int zARRAY_START_ALLOC = 16;
+  
+  namespace zContainer {
+    template<typename T>
+    static inline T* CreateArray( const int num ) {
+      T* ptr = static_cast<T*>( shi_malloc( sizeof(T) * (num) ) );
+      if constexpr( !std::is_trivially_constructible_v<T> ) {
+        for ( int i = 0; i < num; i++ ) {
+          ::new(&ptr[i]) T{};
+        }
+      }
+      return ptr;
+    }
+
+    template<typename T>
+    static inline void DeleteArray( T* ptr, const int num ) {
+      if constexpr ( !std::is_trivially_destructible_v<T> ) {
+        for ( int i = 0; i < num; i++ ) {
+          ptr[i].~T();
+        }
+      }
+      shi_free(ptr);
+    }
+
+    template<typename T>
+    static inline void CopyArray( T* ptr1, T* ptr2, const int num ) {
+      for ( int i = 0; i < num; i++ ) {
+        ptr1[i] = ptr2[i];
+      }
+    }
+
+    template<typename T>
+    static inline T* RealocateArray( const int newSize, T* oldPtr, const int oldPtrSize ) {
+      T* newArray = CreateArray<T>(newSize);
+      CopyArray(newArray, oldPtr, oldPtrSize);
+      DeleteArray(oldPtr, oldPtrSize);
+      return newArray;
+    }
+  }
 
   template <class T>
   class zCArray {
@@ -33,7 +72,7 @@ namespace Gothic_II_Addon {
       numAlloc = startSize;
       parray = 0;
       if( startSize > 0 )
-        parray = new T[startSize];
+        parray = zContainer::CreateArray<T>( startSize );
     }
 
     zCArray( const zCArray<T>& array2 ) {
@@ -42,13 +81,11 @@ namespace Gothic_II_Addon {
       parray = 0;
       AllocDelta( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      for( int i = 0; i < array2.GetNumInList(); i++ )
-        parray[i] = array2.parray[i];
+      zContainer::CopyArray( GetArray(), array2.GetArray(), array2.GetNumInList() );
     }
 
     ~zCArray() {
-      delete[] parray;
-      parray = 0;
+      DeleteList();
     }
 
     T* GetArray() const {
@@ -57,17 +94,14 @@ namespace Gothic_II_Addon {
 
     void ZeroFill() {
       if( parray )
-        memset( parray, 0, sizeof( T ) * numAlloc );
+        for( int i = 0; i < numAlloc; i++ )
+          parray[i] = {};
     }
 
     void AllocDelta( const int numDelta ) {
-      if( numDelta <= 0 ) return;
-      T* newArray = new T[numAlloc + numDelta];
-      if( numInArray > 0 )
-        for( int i = 0; i < numInArray; i++ )
-          newArray[i] = parray[i];
-      delete[] parray;
-      parray = newArray;
+      if( numDelta <= 0 ) 
+         return;
+      parray = zContainer::RealocateArray( numAlloc + numDelta, parray, numAlloc );
       numAlloc += numDelta;
     }
 
@@ -87,11 +121,7 @@ namespace Gothic_II_Addon {
         return;
       }
       if( numAlloc > numInArray ) {
-        T* newArray = new T[numInArray];
-        for( int i = 0; i < numInArray; i++ )
-          newArray[i] = parray[i];
-        delete[] parray;
-        parray = newArray;
+        parray = zContainer::RealocateArray( numInArray, parray, numAlloc );
         numAlloc = numInArray;
       }
     }
@@ -100,8 +130,7 @@ namespace Gothic_II_Addon {
       EmptyList();
       AllocAbs( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      for( int i = 0; i < array2.GetNumInList(); i++ )
-        parray[i] = array2.parray[i];
+      zContainer::CopyArray( GetArray(), array2.GetArray(), array2.GetNumInList() );
     }
 
     const T& operator [] ( const int nr ) const {
@@ -145,7 +174,7 @@ namespace Gothic_II_Addon {
         else
           AllocDelta( numAlloc / 2 );
       }
-      memmove( &parray[pos + 1], &parray[pos], sizeof( T ) * (numInArray - pos) );
+      memmove( &parray[pos + 1], &parray[pos], sizeof(T) * (numInArray - pos) );
       parray[pos] = ins;
       numInArray++;
     }
@@ -190,7 +219,7 @@ namespace Gothic_II_Addon {
     }
 
     void DeleteList() {
-      delete[] parray;
+      zContainer::DeleteArray( parray, numAlloc );
       parray = 0;
       numAlloc = 0;
       numInArray = 0;
@@ -257,8 +286,9 @@ namespace Gothic_II_Addon {
     }
 
     void DeleteListDatas() {
-      for( int i = 0; i != numInArray; i++ )
-        SAFE_DELETE( parray[i] );
+      if constexpr( std::is_pointer_v<T> )
+        for( int i = 0; i != numInArray; i++ )
+          SAFE_DELETE( parray[i] );
       DeleteList();
     }
 
@@ -288,7 +318,7 @@ namespace Gothic_II_Addon {
       numAlloc = startSize;
       array = 0;
       if( startSize > 0 )
-        array = new T()[startSize];
+        array = zContainer::CreateArray<T>( startSize );
       SetCompare( zArraySortDefaultCompare );
     }
 
@@ -298,14 +328,12 @@ namespace Gothic_II_Addon {
       array = 0;
       AllocDelta( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      for( int i = 0; i < array2.GetNumInList(); i++ )
-        array[i] = array2.array[i];
+      zContainer::CopyArray( GetArray(), array2.GetArray(), array2.GetNumInList() );
       SetCompare( array2.Compare );
     }
 
     ~zCArraySort() {
-      delete[] array;
-      array = 0;
+      DeleteList();
     }
 
     T* GetArray() const {
@@ -319,12 +347,7 @@ namespace Gothic_II_Addon {
     void AllocDelta( const int numDelta ) {
       if( numDelta <= 0 )
         return;
-      T* newArray = new T[numAlloc + numDelta];
-      if( numInArray > 0 )
-        for( int i = 0; i < numInArray; i++ )
-          newArray[i] = array[i];
-      delete[] array;
-      array = newArray;
+      array = zContainer::RealocateArray( numAlloc + numDelta, array, numAlloc );
       numAlloc += numDelta;
     }
 
@@ -340,11 +363,7 @@ namespace Gothic_II_Addon {
         return;
       }
       if( numAlloc > numInArray ) {
-        T* newArray = new T()[numInArray];
-        for( int i = 0; i < numInArray; i++ )
-          newArray[i] = array[i];
-        delete[] array;
-        array = newArray;
+        array = zContainer::RealocateArray( numInArray, array, numAlloc );
         numAlloc = numInArray;
       }
     }
@@ -353,8 +372,7 @@ namespace Gothic_II_Addon {
       EmptyList();
       AllocAbs( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      for( int i = 0; i < array2.GetNumInList(); i++ )
-        array[i] = array2.array[i];
+      zContainer::CopyArray( GetArray(), array2.GetArray(), array2.GetNumInList() );
     }
 
     const T& operator [] ( const int nr ) const {
@@ -398,7 +416,7 @@ namespace Gothic_II_Addon {
         else
           AllocDelta( numAlloc / 2 );
       }
-      memmove( &array[pos + 1], &array[pos], sizeof( T ) * (numInArray - pos) );
+      memmove( &array[pos + 1], &array[pos], sizeof(T) * (numInArray - pos) );
       array[pos] = ins;
       numInArray++;
     }
@@ -427,7 +445,7 @@ namespace Gothic_II_Addon {
               index++;
             }
           }
-          memmove( &array[index + 1], &array[index], sizeof( T ) * (numInArray - index) );
+          memmove( &array[index + 1], &array[index], sizeof(T) * (numInArray - index) );
           array[index] = ins;
           numInArray++;
           return;
@@ -504,7 +522,7 @@ namespace Gothic_II_Addon {
     }
 
     void DeleteList() {
-      delete[] array;
+      zContainer::DeleteArray( array, numAlloc );
       array = 0;
       numAlloc = 0;
       numInArray = 0;
@@ -538,15 +556,15 @@ namespace Gothic_II_Addon {
     }
 
     void QuickSort() {
-      qsort( array, GetNumInList(), sizeof( T ), Compare );
+      qsort( array, GetNumInList(), sizeof(T), Compare );
     }
 
     void InsertionSort() {
-      insertionsort( array, GetNumInList(), sizeof( T ), Compare, FALSE );
+      insertionsort( array, GetNumInList(), sizeof(T), Compare, FALSE );
     }
 
     void BestSort() {
-      insertionsort( array, GetNumInList(), sizeof( T ), Compare, TRUE );
+      insertionsort( array, GetNumInList(), sizeof(T), Compare, TRUE );
     }
 
     // user API
@@ -575,13 +593,13 @@ namespace Gothic_II_Addon {
     }
 
     DWORD GetSizeBytes() const {
-      return sizeof( T ) * numInArray;
+      return sizeof(T) * numInArray;
     }
 
     DWORD SetArray( void* ptr, const int num ) {
       array = (T*)ptr;
       numInArray = num;
-      return sizeof( T ) * numInArray;
+      return sizeof(T) * numInArray;
     }
 
     void SetNumInArray( const int num ) {
@@ -629,7 +647,7 @@ namespace Gothic_II_Addon {
     }
 
     void InsertAtPos( const T& ins, int pos ) {
-      memmove( &array[pos + 1], &array[pos], sizeof( T ) * (numInArray - pos) );
+      memmove( &array[pos + 1], &array[pos], sizeof(T) * (numInArray - pos) );
       array[pos] = ins;
       numInArray++;
     }
@@ -729,8 +747,8 @@ namespace Gothic_II_Addon {
     zCTree()                         zInit( zCTree_OnInit() );
     ~zCTree()                        zCall( 0x005A1E80 );
     void RemoveChild()               zCall( 0x005A26B0 );
-    zCTree* AddChild( T* item )      zCall( 0x005F9E40 );
-    zCTree* AddChild( zCTree* node ) zCall( 0x00628660 );
+    zCTree* AddChild( T* item )      zCall( 0x005A1F30 );
+    zCTree* AddChild( zCTree* node ) zCall( 0x00606EE0);
     int CountNodes()                 zCall( 0x006286B0 );
     void RemoveSubtree()             zCall( 0x00606CD0 );
 
@@ -1104,35 +1122,35 @@ namespace Gothic_II_Addon {
             delta = 4;
         }
         Entries += delta;
-        T* newEntry = (T*)zmalloc->Realloc( Entry, sizeof( T ) * Entries );
+        T* newEntry = (T*)zmalloc->Realloc( Entry, sizeof(T) * Entries );
         Entry = newEntry;
       }
     }
 
     GETSmallArrayNative() {
       Entries = 1;
-      Entry = (T*)zmalloc->Malloc( sizeof( T ) * Entries );
-      memset( Entry, 0, sizeof( T ) * Entries );
+      Entry = (T*)zmalloc->Malloc( sizeof(T) * Entries );
+      memset( Entry, 0, sizeof(T) * Entries );
       Used = 0;
     }
 
     GETSmallArrayNative( int entries ) {
       Entries = entries;
-      Entry = (T*)zmalloc->Malloc( sizeof( T ) * Entries );
-      memset( Entry, 0, sizeof( T ) * Entries );
+      Entry = (T*)zmalloc->Malloc( sizeof(T) * Entries );
+      memset( Entry, 0, sizeof(T) * Entries );
       Used = 0;
     }
 
     GETSmallArrayNative<T>& operator=( GETSmallArrayNative<T>& classItem ) {
       if( Entries == classItem.GetAllocatedEntries() ) {
         Used = classItem.Used;
-        memcpy( &Entry[0], &classItem.Entry[0], sizeof( T ) * classItem.Used );
+        memcpy( &Entry[0], &classItem.Entry[0], sizeof(T) * classItem.Used );
       }
       else {
         Used = classItem.Used;
         zmalloc->Free( Entry );
-        Entry = (T*)zmalloc->Malloc( sizeof( T ) * (classItem.Used + 1) );
-        memcpy( &Entry[0], &classItem.Entry[0], sizeof( T ) * classItem.Used );
+        Entry = (T*)zmalloc->Malloc( sizeof(T) * (classItem.Used + 1) );
+        memcpy( &Entry[0], &classItem.Entry[0], sizeof(T) * classItem.Used );
       }
       return *this;
     }
@@ -1145,7 +1163,7 @@ namespace Gothic_II_Addon {
       if( entries < Entries )
         return FALSE;
       Entries = entries;
-      T* newEntry = (T*)zmalloc->Realloc( Entry, sizeof( T ) * Entries );
+      T* newEntry = (T*)zmalloc->Realloc( Entry, sizeof(T) * Entries );
       Entry = newEntry;
       return TRUE;
     }
@@ -1162,7 +1180,7 @@ namespace Gothic_II_Addon {
         return;
       }
       unsigned long i = Used - (ref + 1);
-      memmove( &Entry[ref], &Entry[ref + 1], i * sizeof( T ) );
+      memmove( &Entry[ref], &Entry[ref + 1], i * sizeof(T) );
       Used--;
     }
 

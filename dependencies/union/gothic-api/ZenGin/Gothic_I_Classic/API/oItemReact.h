@@ -32,10 +32,8 @@ namespace Gothic_I_Classic {
   public:
     zOPERATORS_DECLARATION()
 
-    // sizeof 1Ch
-    struct oCItemReactModuleDummy0 {
-      zOPERATORS_DECLARATION()
-
+    oCItemReactModule* next;    // sizeof 04h    offset 00h
+     struct {
       int trade_npc;      // sizeof 04h    offset 00h
       int trade_instance; // sizeof 04h    offset 04h
       int trade_amount;   // sizeof 04h    offset 08h
@@ -43,10 +41,7 @@ namespace Gothic_I_Classic {
       int other_instance; // sizeof 04h    offset 10h
       int other_amount;   // sizeof 04h    offset 14h
       int reaction;       // sizeof 04h    offset 18h
-    };
-
-    oCItemReactModule* next;    // sizeof 04h    offset 00h
-    oCItemReactModuleDummy0 pd; // sizeof 1Ch    offset 04h
+    } pd; // sizeof 1Ch    offset 04h
 
     oCItemReactModule() {}
     void oCItemReactModule_OnInit( int )  zCall( 0x00673C20 );

@@ -3,6 +3,7 @@
 
 #ifndef __ZOBJECT_H__VER2__
 #define __ZOBJECT_H__VER2__
+#include <type_traits>
 
 namespace Gothic_II_Classic {
 

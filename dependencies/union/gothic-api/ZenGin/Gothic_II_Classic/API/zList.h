@@ -30,7 +30,7 @@ namespace Gothic_II_Classic {
     zCPQueue( int startSize ) {
       numInArray = 0;
       numAlloc = startSize;
-      array = new T[startSize];
+      array = zContainer::CreateArray<T>( startSize );
       allow_double_entrys = TRUE;
     }
 
@@ -40,14 +40,12 @@ namespace Gothic_II_Classic {
       array = 0;
       AllocDelta( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      if( numInArray > 0 )
-        memcpy( array, array2.array, sizeof( T ) * numInArray );
+      zContainer::CopyArray( array, array2.array, array2.GetNumInList() );
       allow_double_entrys = TRUE;
     }
 
     ~zCPQueue() {
-      delete[] array;
-      array = 0;
+      DeleteList();
     }
 
     void SetAllowDouble( int allow ) {
@@ -59,11 +57,7 @@ namespace Gothic_II_Classic {
     }
 
     void AllocDelta( const int numDelta ) {
-      T* newArray = new T[numAlloc + numDelta];
-      if( numInArray > 0 )
-        memcpy( newArray, array, sizeof( T ) * numInArray );
-      delete[] array;
-      array = newArray;
+      array = zContainer::RealocateArray( numAlloc + numDelta, array, numAlloc );
       numAlloc += numDelta;
     }
 
@@ -79,10 +73,7 @@ namespace Gothic_II_Classic {
         return;
       }
       if( numAlloc > numInArray ) {
-        T* newArray = new T[numInArray];
-        memcpy( newArray, array, sizeof( T ) * numInArray );
-        delete[] array;
-        array = newArray;
+        array = zContainer::RealocateArray( numInArray, array, numAlloc );
         numAlloc = numInArray;
       }
     }
@@ -91,8 +82,7 @@ namespace Gothic_II_Classic {
       DeleteList();
       AllocDelta( array2.GetNumInList() );
       numInArray = array2.numInArray;
-      if( numInArray > 0 )
-        memcpy( array, array2.array, sizeof( T ) * numInArray );
+      zContainer::CopyArray( array, array2.array, numInArray );
     }
 
     T& operator [] ( int nr ) {
@@ -144,7 +134,7 @@ namespace Gothic_II_Classic {
             if( erg > 0 ) index++;
             if( (erg == 0) && (!allow_double_entrys) ) return FALSE;
           }
-          memmove( &array[index + 1], &array[index], sizeof( T ) * (numInArray - index) );
+          memmove( &array[index + 1], &array[index], sizeof(T) * (numInArray - index) );
           array[index] = ins;
           numInArray++;
           return TRUE;
@@ -186,7 +176,7 @@ namespace Gothic_II_Classic {
     }
 
     void DeleteList() {
-      delete[] array;
+      zContainer::DeleteArray( array, numAlloc );
       array = 0;
       numAlloc = 0;
       numInArray = 0;
@@ -211,13 +201,13 @@ namespace Gothic_II_Classic {
     // user API
     #include "zCPQueue.inl"
   };
-
+  
   template <class T>
   class zCListSort {
   public:
     zMEMPOOL_DECLARATION_TEMPLATE( zCListSort, 0x008C9D34 )
 
-    int(*Compare)(T* ele1, T* ele2);
+      int(*Compare)(T* ele1, T* ele2);
     T* data;
     zCListSort* next;
 
@@ -267,17 +257,17 @@ namespace Gothic_II_Classic {
       zCListSort* newItem = new zCListSort();
       newItem->data = ins;
       newItem->next = next;
-      zCListSort* val = this;
-      while( val->next ) {
-        if( Compare( ins, val->next->data ) < 0 ) {
-          newItem->next = val->next;
-          val->next = newItem;
+      zCListSort* ele = this;
+      while( ele->next ) {
+        if( Compare( ins, ele->next->data ) < 0 ) {
+          newItem->next = ele->next;
+          ele->next = newItem;
           return;
         }
-        val = val->next;
+        ele = ele->next;
       }
       newItem->next = NULL;
-      val->next = newItem;
+      ele->next = newItem;
     }
 
     void Remove( T* rem ) {
