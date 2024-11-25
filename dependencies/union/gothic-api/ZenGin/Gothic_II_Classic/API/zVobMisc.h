@@ -62,19 +62,14 @@ namespace Gothic_II_Classic {
   public:
     zCLASS_DECLARATION( zCTrigger )
 
-    // sizeof 01h
-    struct zCTriggerDummy0 {
-      zOPERATORS_DECLARATION()
-
+    struct {
       unsigned char reactToOnTrigger : 1; // sizeof 01h    offset bit
       unsigned char reactToOnTouch   : 1; // sizeof 01h    offset bit
       unsigned char reactToOnDamage  : 1; // sizeof 01h    offset bit
       unsigned char respondToObject  : 1; // sizeof 01h    offset bit
       unsigned char respondToPC      : 1; // sizeof 01h    offset bit
       unsigned char respondToNPC     : 1; // sizeof 01h    offset bit
-    };
-
-    zCTriggerDummy0 filterFlags; // sizeof 01h    offset 134h
+    } filterFlags; // sizeof 01h    offset 134h
     zSTRING respondToVobName;    // sizeof 14h    offset 138h
     short numCanBeActivated;     // sizeof 02h    offset 14Ch
     float retriggerWaitSec;      // sizeof 04h    offset 150h
@@ -717,18 +712,13 @@ namespace Gothic_II_Classic {
   public:
     zCLASS_DECLARATION( zCCodeMaster )
 
-    // sizeof 01h
-    struct zCCodeMasterDummy0 {
-      zOPERATORS_DECLARATION()
-
+    zSTRING slaveVobNameList[MAX_SLAVES];  // sizeof 78h    offset 134h
+    zSTRING triggerTargetFailure;          // sizeof 14h    offset 1ACh
+    struct {
       unsigned char orderRelevant       : 1; // sizeof 01h    offset bit
       unsigned char untriggerCancels    : 1; // sizeof 01h    offset bit
       unsigned char firstFalseIsFailure : 1; // sizeof 01h    offset bit
-    };
-
-    zSTRING slaveVobNameList[MAX_SLAVES];  // sizeof 78h    offset 134h
-    zSTRING triggerTargetFailure;          // sizeof 14h    offset 1ACh
-    zCCodeMasterDummy0 flags;              // sizeof 01h    offset 1C0h
+    } flags; // sizeof 01h    offset 1C0h
     zCVob* slaveTriggeredList[MAX_SLAVES]; // sizeof 18h    offset 1C4h
     int numSlavesTriggered;                // sizeof 04h    offset 1DCh
 
