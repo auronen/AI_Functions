@@ -12,21 +12,15 @@ namespace Gothic_I_Addon {
 
     unsigned short Protocol; // sizeof 02h    offset 00h
     union {
-      // sizeof 08h
-      struct zTNetAddressDummy0 {
+      struct {
         unsigned short Port; // sizeof 02h    offset 00h
         unsigned long IP;    // sizeof 04h    offset 04h
-      };
-
-      // sizeof 08h
-      struct zTNetAddressDummy1 {
+      } INET; // sizeof 08h    offset 04h
+      struct {
         unsigned char Net[4];  // sizeof 04h    offset 00h
         unsigned char Node[6]; // sizeof 06h    offset 04h
         unsigned short Socket; // sizeof 02h    offset 0Ah
-      };
-
-      zTNetAddressDummy0 INET;
-      zTNetAddressDummy1 IPX;
+      } IPX; // sizeof 0Ch    offset 0Ch
     };
 
     zTNetAddress() {

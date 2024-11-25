@@ -3,7 +3,7 @@
 
 #ifndef __ZMACRO_H__VER3__
 #define __ZMACRO_H__VER3__
-#include <cassert>
+#include <stdexcept>
 #include <crtversion.h>
 
 namespace Gothic_II_Addon {
@@ -33,28 +33,33 @@ namespace Gothic_II_Addon {
 private:                                                                                            \
     static zCVolatileMemory<classname>& s_MemMan;                                                   \
 public:                                                                                             \
-    void *operator new(size_t s) {                                                                  \
+    void *operator new( [[maybe_unused]] size_t s ) {                                               \
         return s_MemMan.Alloc();                                                                    \
     }                                                                                               \
                                                                                                     \
-    void operator delete(void *p) {                                                                 \
-        zSTRING msg = zSTRING("Can't delete an object of class ") + #classname + zSTRING(".");      \
-        assert(msg.ToChar());                                                                       \
+    void operator delete( void *p ) noexcept(false) {                                               \
+       throw std::runtime_error("Can't delete an object of class " #classname  ".");                \
     }                                                                                               \
                                                                                                     \
-    void* operator new(unsigned int size,const char *classn,const char *file,int l) {               \
-        return shi_malloc(size);                                                                    \
+    void* operator new( unsigned int size , const char *classn , const char *file, int l ) {        \
+        return shi_malloc( size );                                                                  \
     }                                                                                               \
                                                                                                     \
-    void operator delete(void *ptr,const char *classn,const char *file,int line) {                  \
-        shi_free(ptr);                                                                              \
+    void operator delete( void *ptr, const char *classn, const char *file, int line ) {             \
+        shi_free( ptr );                                                                            \
     }                                                                                               \
                                                                                                     \
     static size_t PoolMark() { return s_MemMan.Mark(); }                                            \
-    static void PoolRestore(size_t m=0) { s_MemMan.Restore(m); }                                    \
-    static classname &PoolElement(int i) { return s_MemMan.Element(i); }                            \
-    static int PoolIndex(classname *o) { return s_MemMan.Index(o); }                                \
-    static int PoolLastAllocatedIndex() { return s_MemMan.LastAllocatedIndex(); }
+    static void PoolRestore( size_t m=0 ) { s_MemMan.Restore(m); }                                  \
+    static classname &PoolElement( int i ) { return s_MemMan.Element(i); }                          \
+    static int PoolIndex( classname *o ) { return s_MemMan.Index(o); }                              \
+    static int PoolLastAllocatedIndex() { return s_MemMan.LastAllocatedIndex(); }                   \
+    void* operator new[]( size_t size ) {                                                           \
+      return shi_malloc( size );                                                                    \
+    }                                                                                               \
+    void operator delete[]( void* mem ) {                                                           \
+      shi_free( mem );                                                                              \
+    }      
 
 #define XCALL(uAddr)			  \
 	__asm { mov esp, ebp	 } 	\
@@ -109,7 +114,7 @@ public:                                                                         
   // ZMEMPOOL INTERFACE
   // memory pool declaration for gothic api containers
 #define zMEMPOOL_DECLARATION_TEMPLATE( classname, address )                                \
-    void *operator new( size_t s ) {                                                       \
+    void *operator new( [[maybe_unused]] size_t s ) {                                      \
       return ((zCMemPoolBase*)address)->Alloc();                                           \
     }                                                                                      \
     void operator delete( void *p ) {                                                      \
@@ -117,20 +122,26 @@ public:                                                                         
     }                                                                                      \
     void* operator new( unsigned int size, const char* classn, const char *file, int l ) { \
       zCMemPoolBase::SetMemDebug( classn, file, l );                                       \
-      return shi_malloc( size );                                                         \
+      return shi_malloc( size );                                                           \
     }                                                                                      \
     void operator delete( void* ptr, const char* classn, const char* file, int line ) {    \
-      shi_free( ptr );                                                              \
+      shi_free( ptr );                                                                     \
     }                                                                                      \
-    static void PreAlloc( size_t num, zBOOL force_oneblock = FALSE ){                      \
+    static void PreAlloc( size_t num, zBOOL force_oneblock = FALSE ) {                     \
       ((zCMemPoolBase*)address)->PreAlloc( num, force_oneblock );                          \
-    }
+    }                                                                                      \
+    void* operator new[]( size_t size ) {                                                  \
+      return shi_malloc(size);                                                             \
+    }                                                                                      \
+    void operator delete[]( void* mem ) {                                                  \
+      shi_free(mem);                                                                       \
+    }                    
 
 
 
   // memory pool declaration for gothic api classes
 #define zMEMPOOL_DECLARATION( classname, address )                                         \
-    void* operator new( size_t s ){                                                        \
+    void* operator new( [[maybe_unused]] size_t s ){                                       \
       return ((zCMemPoolBase*)address)->Alloc();                                           \
     }                                                                                      \
     void operator delete( void* p ) {                                                      \
@@ -138,16 +149,22 @@ public:                                                                         
     }                                                                                      \
     void* operator new( unsigned int size, const char* classn, const char* file, int l ) { \
       zCMemPoolBase::SetMemDebug( classn, file, l );                                       \
-      return shi_malloc(size);                                                           \
+      return shi_malloc( size );                                                           \
     }                                                                                      \
-    void  operator delete( void* ptr,const char *classn,const char *file,int line) {       \
-      shi_free(ptr);                                                                \
+    void  operator delete( void* ptr, const char *classn , const char *file ,int line ) {  \
+      shi_free( ptr );                                                                     \
     }                                                                                      \
     static void PreAlloc( size_t num, int force_oneblock = FALSE ) {                       \
       ((zCMemPoolBase*)address)->PreAlloc( num, force_oneblock );                          \
     }                                                                                      \
     static void PoolAdd( classname *mem, int num_objects, int free = FALSE ) {             \
       ((zCMemPoolBase*)address)->PoolAdd( mem, num_objects, free );                        \
+    }                                                                                      \
+    void* operator new[]( size_t size ) {                                                  \
+      return shi_malloc( size );                                                           \
+    }                                                                                      \
+    void operator delete[]( void* mem ) {                                                  \
+      shi_free( mem );                                                                     \
     }
 
 
@@ -157,14 +174,16 @@ public:                                                                         
 #define zCLASS_DECLARATION( className )                               \
   static zCClassDef* classDef;                                        \
   void* operator new( size_t size ) {                                 \
-    void* mem = shi_malloc( size );                               \
+    void* mem = shi_malloc( size );                                   \
     zCClassDef::ObjectCreated( (zCObject*)mem, className::classDef ); \
     return mem;                                                       \
   };                                                                  \
   void operator delete( void* mem ) {                                 \
     zCClassDef::ObjectDeleted( (zCObject*)mem, className::classDef ); \
-    shi_free( mem );                                         \
-  };
+    shi_free( mem );                                                  \
+  };                                                                  \
+  void* operator new[]( size_t size ) = delete;                       \
+  void operator delete[]( void* mem ) = delete;                       
 
 
 
@@ -173,13 +192,15 @@ public:                                                                         
   static zCClassDef* classDef;                    \
   static zCObject* _CreateNewInstance( void );    \
   virtual zCClassDef* _GetClassDef( void ) const; \
-  void* operator new(size_t size);                \
-  void operator delete(void* mem);
+  void* operator new( size_t size );              \
+  void operator delete( void* mem );              \
+  void* operator new[]( size_t size ) = delete;   \
+  void operator delete[]( void* mem ) = delete;    
 
 
   // class definition for union zobject classes
 #define zCLASS_UNION_DEFINITION( className, baseClassName, classFlags, archiveVersion )                                                         \
-  zCClassDef* className::classDef = new zCClassDef( #className, #baseClassName, className::_CreateNewInstance, sizeof( className ), 0, 0, "" ); \
+  zCClassDef* className::classDef = !STD_ENGINE_CHECKING ? nullptr : new zCClassDef( #className, #baseClassName, className::_CreateNewInstance, sizeof(className), 0, 0, "" ); \
   zCObject* className::_CreateNewInstance( void ) {                                                                                             \
     return new className;                                                                                                                       \
   }                                                                                                                                             \
@@ -232,12 +253,18 @@ struct zIInheritableInterfaceObject {};
 #define zDefineInheritableCtor(className) className(InheritableInterfaceObject) 
 #define zCtor(baseClassName) baseClassName(zIInheritableInterfaceObject())
 
-#define zOPERATORS_DECLARATION()      \
-  void* operator new( size_t size ) { \
-    return shi_malloc( size );        \
-  };                                  \
-  void operator delete( void* mem ) { \
-    shi_free( mem );                  \
+#define zOPERATORS_DECLARATION()        \
+  void* operator new( size_t size ) {   \
+    return shi_malloc( size );          \
+  };                                    \
+  void operator delete( void* mem ) {   \
+    shi_free( mem );                    \
+  };                                    \
+  void* operator new[]( size_t size ) { \
+    return shi_malloc( size );          \
+  };                                    \
+  void operator delete[]( void* mem ) { \
+    shi_free( mem );                    \
   };
 } // namespace Gothic_II_Addon
 

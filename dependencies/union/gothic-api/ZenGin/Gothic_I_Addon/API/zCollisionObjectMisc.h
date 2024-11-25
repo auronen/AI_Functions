@@ -214,30 +214,6 @@ namespace Gothic_I_Addon {
     struct zTInterferenceReport {
       zOPERATORS_DECLARATION()
 
-      // sizeof 01h
-      struct zTInterferenceReportDummy0 {
-        zOPERATORS_DECLARATION()
-
-        unsigned char spacingRayFront     : 1; // sizeof 01h    offset bit
-        unsigned char spacingRayBack      : 1; // sizeof 01h    offset bit
-        unsigned char spacingRayLeft      : 1; // sizeof 01h    offset bit
-        unsigned char spacingRayRight     : 1; // sizeof 01h    offset bit
-        unsigned char spacingRayWallSlide : 1; // sizeof 01h    offset bit
-      };
-
-      // sizeof 01h
-      struct zTInterferenceReportDummy1 {
-        zOPERATORS_DECLARATION()
-
-        unsigned char lowCeiling        : 1; // sizeof 01h    offset bit
-        unsigned char floorTooSteepUp   : 1; // sizeof 01h    offset bit
-        unsigned char floorTooSteepDown : 1; // sizeof 01h    offset bit
-        unsigned char floorTooHigh      : 1; // sizeof 01h    offset bit
-        unsigned char floorTooLow       : 1; // sizeof 01h    offset bit
-        unsigned char centerRayCollided : 1; // sizeof 01h    offset bit
-        unsigned char blockingWallSlide : 1; // sizeof 01h    offset bit
-      };
-
       zCPolygon* spacingRayFrontPoly;        // sizeof 04h    offset 00h
       zCVob* spacingRayFrontVob;             // sizeof 04h    offset 04h
       zCPolygon* spacingRayBackPoly;         // sizeof 04h    offset 08h
@@ -246,8 +222,23 @@ namespace Gothic_I_Addon {
       zCVob* spacingRayLeftVob;              // sizeof 04h    offset 14h
       zCPolygon* spacingRayRightPoly;        // sizeof 04h    offset 18h
       zCVob* spacingRayRightVob;             // sizeof 04h    offset 1Ch
-      zTInterferenceReportDummy0 correction; // sizeof 01h    offset 20h
-      zTInterferenceReportDummy1 blocking;   // sizeof 01h    offset 21h
+      struct {
+        unsigned char spacingRayFront     : 1; // sizeof 01h    offset bit
+        unsigned char spacingRayBack      : 1; // sizeof 01h    offset bit
+        unsigned char spacingRayLeft      : 1; // sizeof 01h    offset bit
+        unsigned char spacingRayRight     : 1; // sizeof 01h    offset bit
+        unsigned char spacingRayWallSlide : 1; // sizeof 01h    offset bit
+      } correction; // sizeof 01h    offset 20h
+
+      struct {
+        unsigned char lowCeiling        : 1; // sizeof 01h    offset bit
+        unsigned char floorTooSteepUp   : 1; // sizeof 01h    offset bit
+        unsigned char floorTooSteepDown : 1; // sizeof 01h    offset bit
+        unsigned char floorTooHigh      : 1; // sizeof 01h    offset bit
+        unsigned char floorTooLow       : 1; // sizeof 01h    offset bit
+        unsigned char centerRayCollided : 1; // sizeof 01h    offset bit
+        unsigned char blockingWallSlide : 1; // sizeof 01h    offset bit
+      } blocking; // sizeof 01h    offset 21h
       zVEC3 collisionNormal;                 // sizeof 0Ch    offset 24h
 
       zTInterferenceReport() {}

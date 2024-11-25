@@ -54,25 +54,6 @@ namespace Gothic_I_Classic {
   public:
     zCLASS_DECLARATION( zCVertexBuffer )
 
-    // sizeof 24h
-    struct zCVertexBufferDummy0 {
-      zOPERATORS_DECLARATION()
-
-      unsigned char* basePtr; // sizeof 04h    offset 00h
-      zVEC3* XYZPtr;          // sizeof 04h    offset 04h
-      zVEC4* XYZRHWPtr;       // sizeof 04h    offset 08h
-      zVEC3* normalPtr;       // sizeof 04h    offset 0Ch
-      zCOLOR* colorPtr;       // sizeof 04h    offset 10h
-      union {
-        struct {
-          zVEC2* texUV0Ptr;   // sizeof 04h    offset 14h
-          zVEC2* texUV1Ptr;   // sizeof 04h    offset 18h
-          zVEC2* texUV2Ptr;   // sizeof 04h    offset 1Ch
-          zVEC2* texUV3Ptr;   // sizeof 04h    offset 20h
-        };
-      };
-    };
-
     // sizeof 08h
     struct zTCallbackData {
       zOPERATORS_DECLARATION()
@@ -88,7 +69,24 @@ namespace Gothic_I_Classic {
 
     unsigned long numVertex;              // sizeof 04h    offset 24h
     unsigned long arrayStride;            // sizeof 04h    offset 28h
-    zCVertexBufferDummy0 array;           // sizeof 24h    offset 2Ch
+    struct {
+      unsigned char* basePtr; // sizeof 04h    offset 00h
+      zVEC3* XYZPtr;          // sizeof 04h    offset 04h
+      zVEC4* XYZRHWPtr;       // sizeof 04h    offset 08h
+      zVEC3* normalPtr;       // sizeof 04h    offset 0Ch
+      zCOLOR* colorPtr;       // sizeof 04h    offset 10h
+      union {
+        struct {
+          zVEC2* texUV0Ptr;   // sizeof 04h    offset 14h
+          zVEC2* texUV1Ptr;   // sizeof 04h    offset 18h
+          zVEC2* texUV2Ptr;   // sizeof 04h    offset 1Ch
+          zVEC2* texUV3Ptr;   // sizeof 04h    offset 20h
+        };
+        struct {
+	        zVEC2 *texUVPtr[4]; // sizeof 20h   offset 14h
+        };
+      };
+    } array; // sizeof 24h    offset 2Ch
     int numVertsFilled;                   // sizeof 04h    offset 50h
     unsigned long createFlags;            // sizeof 04h    offset 54h
     zCArray<zTCallbackData> callbackList; // sizeof 0Ch    offset 58h
