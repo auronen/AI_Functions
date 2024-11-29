@@ -60,7 +60,7 @@ namespace Gothic_II_Classic {
     int refSizeY;                  // sizeof 04h    offset 14h
     zCOLOR averageColor;           // sizeof 04h    offset 18h
 
-    zCTextureInfo() { ZeroMemory( this, sizeof( zCTextureInfo ) ); }
+    zCTextureInfo() { ZeroMemory( this, sizeof(zCTextureInfo) ); }
 
     // user API
     #include "zCTextureInfo.inl"
