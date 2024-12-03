@@ -1,4 +1,5 @@
 #include <cassert>
+#include <utility>
 
 namespace GOTHIC_NAMESPACE {
     using Parameter = std::variant<Int, Float, String, Instance>;
@@ -21,7 +22,7 @@ namespace GOTHIC_NAMESPACE {
         oCMsgAI(AI_type subType, int fn_index, std::vector<Parameter> params, oCNpc* self) {
             this->subType = subType;
             this->function_index = fn_index;
-            this->params = params;
+            this->params = std::move(params);
         };
         virtual ~oCMsgAI() {};
 

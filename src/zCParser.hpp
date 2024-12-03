@@ -1,7 +1,7 @@
 namespace GOTHIC_NAMESPACE
 {
     // This should rewriten to accept a Zengin container instead of std::vector
-    void zCParser::CallFunc(int function, std::vector<Parameter> params) {
+    void zCParser::CallFunc(int function, const std::vector<Parameter>& params) {
         int pos;
         zCPar_Symbol* sym = parser->GetSymbol(function);
         datastack.Clear();
