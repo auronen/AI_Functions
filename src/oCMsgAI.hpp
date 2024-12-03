@@ -93,27 +93,23 @@ namespace GOTHIC_NAMESPACE {
 
     void oCNpc::OnMessage_U(zCEventMessage* eventMessage, zCVob* sourceVob)
     {
-        if (!IsMessageAIEnabled()) {
-            eventMessage->Delete();
-            return;
-        }
+        if (auto aiMsg = zDYNAMIC_CAST<oCMsgAI>(eventMessage))
+        {
+            //make sure message won't be deleted on call to the engine
+            aiMsg->AddRef();
+            // Call the original function
+            (this->*Hook_OnMessage)(eventMessage, sourceVob);
+           
 
-        if (!GetVisual() || !GetAnictrl()) AvoidShrink(1000);
-
-        if (!GetAnictrl()) InitHumanAI();
-        anictrl = GetAnictrl();
-
-        eventMessage->AddRef();
-
-        zBOOL del = TRUE;
-
-        if (zDYNAMIC_CAST<oCMsgAI>(eventMessage)) {
-
-            oCMsgAI* csg = (oCMsgAI*)eventMessage;
+            int del{};
             switch (csg->GetSubType()) {
-            case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(csg);      break;
+            case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(aiMsg);      break;
             }
-            if (del) csg->Delete();
+            aiMsg->Release();
+
+            if (del) aiMsg->Delete();
+
+            return;
         }
 
         // Call the original function
