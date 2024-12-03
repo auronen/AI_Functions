@@ -12,25 +12,13 @@ namespace GOTHIC_NAMESPACE
                 {
                     using T = std::decay_t<decltype(arg)>;
                     if constexpr (std::is_same_v<T, Int>) {
-                        zCPar_Symbol* par = this->GetSymbol(function + i);
-                        if (par)
-                            par->SetValue(arg.value, 0);
-    
                         this->datastack.Push(arg.value);
                         this->datastack.Push(zPAR_TOK_PUSHINT);
                     } else if constexpr (std::is_same_v<T, Float>) {
-                        zCPar_Symbol* par = this->GetSymbol(function + i);
-                        if (par) 
-                            par->SetValue(arg.value, 0);
-    
                         this->datastack.Push(*((int*)&arg.value));
                         this->datastack.Push(zPAR_TOK_PUSHINT);
                     }
                     else if constexpr (std::is_same_v<T, String>) {
-                        zCPar_Symbol* par = this->GetSymbol(function + i);
-                        if (par) 
-                            zSTRING* x = (zSTRING*)arg.value;
-    
                         this->datastack.Push(arg.value);
                         this->datastack.Push(zPAR_TOK_PUSHVAR);
                     }
