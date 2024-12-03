@@ -1,3 +1,4 @@
+#include <bit>
 namespace GOTHIC_NAMESPACE
 {
     // This should rewriten to accept a Zengin container instead of std::vector
@@ -15,7 +16,7 @@ namespace GOTHIC_NAMESPACE
                         this->datastack.Push(arg.value);
                         this->datastack.Push(zPAR_TOK_PUSHINT);
                     } else if constexpr (std::is_same_v<T, Float>) {
-                        this->datastack.Push(*((int*)&arg.value));
+                        this->datastack.Push(std::bit_cast<int>(arg.value));
                         this->datastack.Push(zPAR_TOK_PUSHINT);
                     }
                     else if constexpr (std::is_same_v<T, String>) {
