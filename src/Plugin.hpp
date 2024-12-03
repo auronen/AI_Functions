@@ -1,6 +1,4 @@
 // This file is included separately for each engine version
-#include <iostream>
-#include <string>
 namespace GOTHIC_NAMESPACE
 {
     // There is a problem: 
