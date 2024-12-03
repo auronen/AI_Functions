@@ -102,7 +102,7 @@ namespace GOTHIC_NAMESPACE {
            
 
             int del{};
-            switch (csg->GetSubType()) {
+            switch (aiMsg->GetSubType()) {
             case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(aiMsg);      break;
             }
             aiMsg->Release();
