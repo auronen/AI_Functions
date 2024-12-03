@@ -38,7 +38,6 @@ namespace GOTHIC_NAMESPACE
                         zCPar_Symbol* par = this->GetSymbol(function + i);
                         zCPar_Symbol* inst_sym = this->GetSymbol(arg.value);
                         if (inst_sym && par) {
-                            par->SetValue(arg.value, 0);
                             this->datastack.Push(arg.value);
                             // This does not have to be there for some reason
                             //if (!sym->HasFlag(zPAR_FLAG_EXTERNAL))
