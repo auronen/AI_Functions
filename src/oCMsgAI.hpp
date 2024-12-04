@@ -105,10 +105,10 @@ namespace GOTHIC_NAMESPACE {
             switch (aiMsg->GetSubType()) {
             case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(aiMsg);      break;
             }
-            aiMsg->Release();
 
             if (del) aiMsg->Delete();
 
+            aiMsg->Release();
             return;
         }
 
