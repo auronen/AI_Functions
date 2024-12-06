@@ -1,6 +1,5 @@
 // This file is included separately for each engine version
-#include <iostream>
-#include <string>
+#include <utility>
 namespace GOTHIC_NAMESPACE
 {
     // There is a problem: 
@@ -60,7 +59,7 @@ namespace GOTHIC_NAMESPACE
             }
 
             self->GetEM(false)->OnMessage(
-                new oCMsgAI(oCMsgAI::EV_CALLFUNC, function, args, self),
+                new oCMsgAI(oCMsgAI::EV_CALLFUNC, function, std::move(args), self),
                 self
             );
         }
