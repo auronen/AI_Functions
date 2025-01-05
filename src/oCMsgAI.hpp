@@ -1,4 +1,5 @@
 #include <cassert>
+#include <utility>
 
 namespace GOTHIC_NAMESPACE {
     using Parameter = std::variant<Int, Float, String, Instance>;
@@ -21,7 +22,7 @@ namespace GOTHIC_NAMESPACE {
         oCMsgAI(AI_type subType, int fn_index, std::vector<Parameter> params, oCNpc* self) {
             this->subType = subType;
             this->function_index = fn_index;
-            this->params = params;
+            this->params = std::move(params);
         };
         virtual ~oCMsgAI() {};
 
@@ -92,27 +93,23 @@ namespace GOTHIC_NAMESPACE {
 
     void oCNpc::OnMessage_U(zCEventMessage* eventMessage, zCVob* sourceVob)
     {
-        if (!IsMessageAIEnabled()) {
-            eventMessage->Delete();
-            return;
-        }
+        if (auto aiMsg = zDYNAMIC_CAST<oCMsgAI>(eventMessage))
+        {
+            //make sure message won't be deleted on call to the engine
+            aiMsg->AddRef();
+            // Call the original function
+            (this->*Hook_OnMessage)(eventMessage, sourceVob);
+           
 
-        if (!GetVisual() || !GetAnictrl()) AvoidShrink(1000);
-
-        if (!GetAnictrl()) InitHumanAI();
-        anictrl = GetAnictrl();
-
-        eventMessage->AddRef();
-
-        zBOOL del = TRUE;
-
-        if (zDYNAMIC_CAST<oCMsgAI>(eventMessage)) {
-
-            oCMsgAI* csg = (oCMsgAI*)eventMessage;
-            switch (csg->GetSubType()) {
-            case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(csg);      break;
+            int del{};
+            switch (aiMsg->GetSubType()) {
+            case oCMsgAI::EV_CALLFUNC: del = EV_CallFunction(aiMsg);      break;
             }
-            if (del) csg->Delete();
+
+            if (del) aiMsg->Delete();
+
+            aiMsg->Release();
+            return;
         }
 
         // Call the original function
